@@ -17,7 +17,7 @@ jobs:
         with:
           node-version: '16.x'
           cache: 'npm'
-          cache-dependency-path: '.github\workflows\package.yaml'
+          cache-dependency-path: 'patch/.github/workflows/package.yaml'
 
       - name: Build
         run: npx haax@0.1.13 build ./patch ./Patch-Y.mpq inPlace
