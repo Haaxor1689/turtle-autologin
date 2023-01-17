@@ -1,6 +1,6 @@
 # Vanilla AutoLogin
 
-Patch form Vanilla WoW client that adds auto login and account info saving features.
+Patch for Vanilla WoW client that adds auto login and account info saving features.
 
 > This patch saves your login info into `\WTF\Config.wtf` so keep in mind that it will **contain your passwords** and thus you should think before sharing this file with someone else.
 
