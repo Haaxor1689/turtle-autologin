@@ -1,0 +1,34 @@
+name: Package
+
+on: push
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+          path: patch
+
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16.x'
+          cache: 'npm'
+          cache-dependency-path: '.github/workflows/package.yaml'
+
+      - name: Build
+        run: npx haax@0.1.13 build ./patch ./Patch-Y.mpq inPlace
+
+      - name: Push
+        uses: actions-ecosystem/action-push-tag@v1
+        with:
+          tag: 'release'
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: Patch-Y.mpq
+          fail_on_unmatched_files: true
