@@ -10,20 +10,23 @@ function Autologin_OnCharactersLoad()
   if (selected.character == '-') then return end
 
   -- Get id from the character name
-  for i = 1, GetNumCharacters() do
-    local name = GetCharacterInfo(i);
-    if (name == selected.character) then
-      SelectCharacter(i);
-      EnterWorld();
-    end
-  end
+  -- for i = 1, GetNumCharacters() do
+  --   local name = GetCharacterInfo(i);
+  --   if (name == selected.character) then
+  --     SelectCharacter(i);
+  --     EnterWorld();
+  --   end
+  -- end
+  SelectCharacter(tonumber(selected.character));
+  EnterWorld();
 end
 
 function Autologin_EnterWorld()
   -- Update autologin character if checkbox is checked
   if (Autologin_SelectedIdx and AutologinSaveCharacterButton:GetChecked()) then
-    local name = GetCharacterInfo(CharacterSelect.selectedIndex);
-    Autologin_Table[Autologin_SelectedIdx].character = name;
+    -- local name = GetCharacterInfo(CharacterSelect.selectedIndex);
+    -- Autologin_Table[Autologin_SelectedIdx].character = name;
+    Autologin_Table[Autologin_SelectedIdx].character = CharacterSelect.selectedIndex;
     Autologin_Save();
   end
 

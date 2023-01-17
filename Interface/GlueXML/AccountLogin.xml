@@ -146,12 +146,12 @@
 				<Frames>
 					<Frame name="AutologinAccountsFrame">
 						<Size>
-							<AbsDimension x="260" y="616"/>
+							<AbsDimension x="260" y="330"/>
 						</Size>
 						<Anchors>
-							<Anchor point="BOTTOMLEFT">
+							<Anchor point="TOPRIGHT">
 								<Offset>
-									<AbsDimension y="40"/>
+									<AbsDimension x="-5" y="-15"/>
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -165,6 +165,18 @@
 											<Anchor point="TOP">
 												<Offset>
 													<AbsDimension x="0" y="-10"/>
+												</Offset>
+											</Anchor>
+										</Anchors>
+									</FontString>
+									<FontString name="AutologinSizeWarning" inherits="GlueFontRedSmall" text="WARNING: Too many accounts. Changes won't be saved correctly.">
+										<Size>
+											<AbsDimension x="220" y="28"/>
+										</Size>
+										<Anchors>
+											<Anchor point="TOP" relativeTo="AutologinAccountsFrame" relativePoint="BOTTOM">
+												<Offset>
+													<AbsDimension x="0" y="4"/>
 												</Offset>
 											</Anchor>
 										</Anchors>
@@ -202,51 +214,6 @@
 							<Button name="AutologinAccountButton4" inherits="AutologinAccountButtonTemplate" id="4">
 								<Anchors>
 									<Anchor point="TOP" relativeTo="AutologinAccountButton3" relativePoint="BOTTOM">
-										<Offset>
-											<AbsDimension y="13"/>
-										</Offset>
-									</Anchor>
-								</Anchors>
-							</Button>
-							<Button name="AutologinAccountButton5" inherits="AutologinAccountButtonTemplate" id="5">
-								<Anchors>
-									<Anchor point="TOP" relativeTo="AutologinAccountButton4" relativePoint="BOTTOM">
-										<Offset>
-											<AbsDimension y="13"/>
-										</Offset>
-									</Anchor>
-								</Anchors>
-							</Button>
-							<Button name="AutologinAccountButton6" inherits="AutologinAccountButtonTemplate" id="6">
-								<Anchors>
-									<Anchor point="TOP" relativeTo="AutologinAccountButton5" relativePoint="BOTTOM">
-										<Offset>
-											<AbsDimension y="13"/>
-										</Offset>
-									</Anchor>
-								</Anchors>
-							</Button>
-							<Button name="AutologinAccountButton7" inherits="AutologinAccountButtonTemplate" id="7">
-								<Anchors>
-									<Anchor point="TOP" relativeTo="AutologinAccountButton6" relativePoint="BOTTOM">
-										<Offset>
-											<AbsDimension y="13"/>
-										</Offset>
-									</Anchor>
-								</Anchors>
-							</Button>
-							<Button name="AutologinAccountButton8" inherits="AutologinAccountButtonTemplate" id="8">
-								<Anchors>
-									<Anchor point="TOP" relativeTo="AutologinAccountButton7" relativePoint="BOTTOM">
-										<Offset>
-											<AbsDimension y="13"/>
-										</Offset>
-									</Anchor>
-								</Anchors>
-							</Button>
-							<Button name="AutologinAccountButton9" inherits="AutologinAccountButtonTemplate" id="9">
-								<Anchors>
-									<Anchor point="TOP" relativeTo="AutologinAccountButton8" relativePoint="BOTTOM">
 										<Offset>
 											<AbsDimension y="13"/>
 										</Offset>

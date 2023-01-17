@@ -1,18 +1,21 @@
-FADE_IN_TIME = 2;
-DEFAULT_TOOLTIP_COLOR = { 0.8, 0.8, 0.8, 0.09, 0.09, 0.09 };
-MAX_PIN_LENGTH = 10;
-
 Autologin_Table = {}
 Autologin_SelectedIdx = nil;
 Autologin_CurrentPage = 0;
-Autologin_PageSize = 9;
+Autologin_PageSize = 4;
+Autologin_LimitReached = false;
 
 function Autologin_Load()
   Autologin_Table = {};
-  for name, password, character in string.gfind(GetSavedAccountName(),
-                                                "(%S+) (%S+) (%S+);") do
-    table.insert(Autologin_Table,
-                 { name = name, password = password, character = character });
+  local val = GetSavedAccountName()
+  for n, p, c in string.gfind(val, "(%S+) (%S+) *(%d*);") do
+    if (c == "") then c = "-" end
+
+    -- Decompress duplicate passwords
+    if (string.find(p, "~%d") == 1) then
+      p = Autologin_Table[tonumber(string.sub(p, 2, 3))].password;
+    end
+
+    table.insert(Autologin_Table, { name = n, password = p, character = c });
   end
 end
 
@@ -41,10 +44,23 @@ function Autologin_Save(name, password)
   -- Serialize table to saved var
   local savedVar = "";
   for i = 1, table.getn(Autologin_Table) do
-    savedVar = savedVar .. Autologin_Table[i].name .. ' ' ..
-                   Autologin_Table[i].password .. ' ' ..
-                   Autologin_Table[i].character .. ';';
+    local r = Autologin_Table[i];
+
+    -- Compress duplicate passwords
+    local pw = r.password;
+    for j = 1, i - 1 do
+      if (Autologin_Table[j].password == r.password) then pw = '~' .. j end
+    end
+
+    savedVar = savedVar .. r.name .. ' ' .. pw;
+    if (r.character == "-") then
+      savedVar = savedVar .. ";";
+    else
+      savedVar = savedVar .. ' ' .. r.character .. ';';
+    end
   end
+
+  Autologin_LimitReached = string.len(savedVar) > 128;
   SetSavedAccountName(savedVar);
 end
 
@@ -68,7 +84,7 @@ end
 
 function Autologin_UpdateUI()
   local skip = Autologin_CurrentPage * Autologin_PageSize;
-  for i = 1, 9 do
+  for i = 1, Autologin_PageSize do
     getglobal("AutologinAccountButton" .. i):UnlockHighlight();
     if (skip + i > table.getn(Autologin_Table)) then
       getglobal("AutologinAccountButton" .. i):Hide();
@@ -92,6 +108,12 @@ function Autologin_UpdateUI()
         getglobal("AutologinAccountButton" .. i):LockHighlight();
       end
     end
+  end
+
+  if (Autologin_LimitReached) then
+    getglobal("AutologinSizeWarning"):Show();
+  else
+    getglobal("AutologinSizeWarning"):Hide();
   end
 end
 
@@ -153,6 +175,10 @@ end
 
 -- Vanilla code
 
+FADE_IN_TIME = 2;
+DEFAULT_TOOLTIP_COLOR = { 0.8, 0.8, 0.8, 0.09, 0.09, 0.09 };
+MAX_PIN_LENGTH = 10;
+
 function AccountLogin_OnLoad()
   this:SetSequence(0);
   this:SetCamera(0);
@@ -190,14 +216,12 @@ function AccountLogin_OnShow()
     AccountLoginRealmName:Hide()
   end
 
-  local accountName = GetSavedAccountName();
-
   -- Autologin OnShow
   Autologin_Load();
   if (table.getn(Autologin_Table) ~= 0) then Autologin_SelectAccount(1); end
   Autologin_UpdateUI();
 
-  if (accountName == "") then
+  if (GetSavedAccountName() == "") then
     AccountLogin_FocusAccountName();
   else
     AccountLogin_FocusPassword();
