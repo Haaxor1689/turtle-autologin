@@ -257,14 +257,11 @@
 								<Anchors>
 									<Anchor point="BOTTOM" relativeTo="AutologinAccountsFrame" relativePoint="BOTTOM">
 										<Offset>
-											<AbsDimension x="0" y="10"/>
+											<AbsDimension x="0" y="5"/>
 										</Offset>
 									</Anchor>
 								</Anchors>
 								<Scripts>
-									<OnLoad>
-										this:SetWidth(this:GetTextWidth() + 50);
-									</OnLoad>
 									<OnClick>
 										Autologin_RemoveAccount();
 									</OnClick>
@@ -279,13 +276,50 @@
 									</Anchor>
 								</Anchors>
 								<Scripts>
-									<OnLoad>
-										this:SetWidth(this:GetTextWidth() + 50);
-									</OnLoad>
 									<OnClick>
 										Autologin_ClearCharacter();
 									</OnClick>
 								</Scripts>
+							</Button>
+							<Button name="AutologinNextPage">
+								<Size>
+									<AbsDimension x="32" y="32"/>
+								</Size>
+								<Anchors>
+									<Anchor point="BOTTOMRIGHT"  relativeTo="AutologinAccountsFrame" relativePoint="BOTTOMRIGHT">
+										<Offset>
+											<AbsDimension x="-5" y="10"/>
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnClick>
+										Autologin_NextPage();
+									</OnClick>
+								</Scripts>
+								<NormalTexture file="Interface\Glues\Common\Glue-RightArrow-Button-Up"/>
+								<PushedTexture file="Interface\Glues\Common\Glue-RightArrow-Button-Down"/>
+								<HighlightTexture file="Interface\Glues\Common\Glue-RightArrow-Button-Highlight" alphaMode="ADD"/>
+							</Button>
+							<Button name="AutologinPrevPage">
+								<Size>
+									<AbsDimension x="32" y="32"/>
+								</Size>
+								<Anchors>
+									<Anchor point="BOTTOMLEFT"  relativeTo="AutologinAccountsFrame" relativePoint="BOTTOMLEFT">
+										<Offset>
+											<AbsDimension x="10" y="10"/>
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnClick>
+										Autologin_PrevPage();
+									</OnClick>
+								</Scripts>
+								<NormalTexture file="Interface\Glues\Common\Glue-LeftArrow-Button-Up"/>
+								<PushedTexture file="Interface\Glues\Common\Glue-LeftArrow-Button-Down"/>
+								<HighlightTexture file="Interface\Glues\Common\Glue-LeftArrow-Button-Highlight" alphaMode="ADD"/>
 							</Button>
 						</Frames>
 						<Backdrop bgFile="Interface\Glues\Common\Glue-Tooltip-Background" edgeFile="Interface\Glues\Common\Glue-Tooltip-Border" tile="true">

@@ -4,6 +4,8 @@ MAX_PIN_LENGTH = 10;
 
 Autologin_Table = {}
 Autologin_SelectedIdx = nil;
+Autologin_CurrentPage = 0;
+Autologin_PageSize = 9;
 
 function Autologin_Load()
   Autologin_Table = {};
@@ -47,41 +49,49 @@ function Autologin_Save(name, password)
 end
 
 function Autologin_SelectAccount(idx)
-  AccountLoginAccountEdit:SetText(Autologin_Table[idx].name);
-  AccountLoginPasswordEdit:SetText(Autologin_Table[idx].password);
+  local i = Autologin_CurrentPage * Autologin_PageSize + idx;
+  AccountLoginAccountEdit:SetText(Autologin_Table[i].name);
+  AccountLoginPasswordEdit:SetText(Autologin_Table[i].password);
 end
 
 function Autologin_OnNameUpdate(name)
-  local idx;
+  Autologin_SelectedIdx = nil;
   for i = 1, table.getn(Autologin_Table) do
-    if (Autologin_Table[i].name == name) then
-      getglobal("AutologinAccountButton" .. i):LockHighlight();
-      idx = i;
-    else
-      getglobal("AutologinAccountButton" .. i):UnlockHighlight();
-    end
+    if (Autologin_Table[i].name == name) then Autologin_SelectedIdx = i; end
   end
-  Autologin_SelectedIdx = idx;
+  if (Autologin_SelectedIdx) then
+    Autologin_CurrentPage = math.floor((Autologin_SelectedIdx - 1) /
+                                           Autologin_PageSize);
+  end
+  Autologin_UpdateUI();
 end
 
 function Autologin_UpdateUI()
-  for i = 1, table.getn(Autologin_Table) do
-    local r = Autologin_Table[i];
-    getglobal("AutologinAccountButton" .. i):Show();
-    getglobal("AutologinAccountButton" .. i .. "ButtonTextName"):SetText(r.name);
-    getglobal("AutologinAccountButton" .. i .. "ButtonTextPassword"):SetText(
-        'Password: ' .. string.rep("*", string.len(r.password)));
-
-    if (r.character == '-') then
-      getglobal("AutologinAccountButton" .. i .. "ButtonTextCharacter"):SetText(
-          "");
+  local skip = Autologin_CurrentPage * Autologin_PageSize;
+  for i = 1, 9 do
+    getglobal("AutologinAccountButton" .. i):UnlockHighlight();
+    if (skip + i > table.getn(Autologin_Table)) then
+      getglobal("AutologinAccountButton" .. i):Hide();
     else
-      getglobal("AutologinAccountButton" .. i .. "ButtonTextCharacter"):SetText(
-          'Character: ' .. r.character);
+      local r = Autologin_Table[skip + i];
+      getglobal("AutologinAccountButton" .. i):Show();
+      getglobal("AutologinAccountButton" .. i .. "ButtonTextName"):SetText(
+          r.name);
+      getglobal("AutologinAccountButton" .. i .. "ButtonTextPassword"):SetText(
+          'Password: ' .. string.rep("*", string.len(r.password)));
+
+      if (r.character == '-') then
+        getglobal("AutologinAccountButton" .. i .. "ButtonTextCharacter"):SetText(
+            "");
+      else
+        getglobal("AutologinAccountButton" .. i .. "ButtonTextCharacter"):SetText(
+            'Character: ' .. r.character);
+      end
+
+      if (Autologin_SelectedIdx == skip + i) then
+        getglobal("AutologinAccountButton" .. i):LockHighlight();
+      end
     end
-  end
-  for i = table.getn(Autologin_Table) + 1, 9 do
-    getglobal("AutologinAccountButton" .. i):Hide();
   end
 end
 
@@ -106,11 +116,18 @@ end
 
 function Autologin_RemoveAccount()
   if (not Autologin_SelectedIdx) then return end
+
   table.remove(Autologin_Table, Autologin_SelectedIdx);
   Autologin_Save();
-  Autologin_UpdateUI();
   AccountLoginAccountEdit:SetText("");
   AccountLoginPasswordEdit:SetText("");
+
+  if (Autologin_CurrentPage > 0 and Autologin_CurrentPage * Autologin_PageSize >
+      table.getn(Autologin_Table) - 1) then
+    Autologin_CurrentPage = Autologin_CurrentPage - 1;
+  end
+
+  Autologin_UpdateUI();
 end
 
 function Autologin_ClearCharacter()
@@ -118,6 +135,19 @@ function Autologin_ClearCharacter()
 
   Autologin_Table[Autologin_SelectedIdx].character = '-';
   Autologin_Save();
+  Autologin_UpdateUI();
+end
+
+function Autologin_NextPage()
+  if ((Autologin_CurrentPage + 1) * Autologin_PageSize >
+      table.getn(Autologin_Table) - 1) then return end
+  Autologin_CurrentPage = Autologin_CurrentPage + 1;
+  Autologin_UpdateUI();
+end
+
+function Autologin_PrevPage()
+  if (Autologin_CurrentPage == 0) then return end
+  Autologin_CurrentPage = Autologin_CurrentPage - 1;
   Autologin_UpdateUI();
 end
 
