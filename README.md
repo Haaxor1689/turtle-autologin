@@ -14,7 +14,9 @@ Patch from 1.12.1 vanilla WoW client that adds auto login and account info savin
 
 ## Installation
 
-Download the `Patch-Y.MPQ` from GitHub releases (section in the right panel of GitHub ui) and place the file inside `\Data` folder of your client.
+### [Patch-Y.MPQ download link](https://github.com/Haaxor1689/vanilla-autologin/releases/download/release/Patch-Y.mpq)
+
+Download the `Patch-Y.MPQ` and place the file inside `\Data` folder of your client.
 
 ## Advanced usage
 
