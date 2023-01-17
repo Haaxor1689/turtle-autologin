@@ -1,6 +1,9 @@
 name: Package
 
-on: push
+on:
+  push:
+    tags:
+      - 'release'
 
 jobs:
   build:
@@ -21,11 +24,6 @@ jobs:
 
       - name: Build
         run: npx haax@0.1.13 build ./patch ./Patch-Y.mpq inPlace
-
-      - name: Push
-        uses: actions-ecosystem/action-push-tag@v1
-        with:
-          tag: 'release'
 
       - name: Release
         uses: softprops/action-gh-release@v1
