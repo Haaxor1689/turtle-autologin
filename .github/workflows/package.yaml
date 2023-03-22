@@ -23,7 +23,7 @@ jobs:
           cache-dependency-path: 'patch/.github/workflows/package.yaml'
 
       - name: Build
-        run: npx haax@0.3.1 build -s ./patch  -o ./Patch-Y.mpq -i
+        run: npx haax@0.1.13 build ./patch ./Patch-Y.mpq inPlace
 
       - name: Release
         uses: softprops/action-gh-release@v1
