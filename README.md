@@ -14,7 +14,7 @@ Patch for Turtle WoW client that adds auto login and account info saving feature
 
 ## Installation
 
-### [Patch-Y.MPQ download link](releases/download/release/Patch-Y.mpq)
+### [Patch-Y.MPQ download link](../../releases/download/release/Patch-Y.mpq)
 
 Download the `Patch-Y.MPQ` and place the file inside `\Data` folder of your client.
 
