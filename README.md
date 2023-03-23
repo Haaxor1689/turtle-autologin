@@ -1,6 +1,6 @@
-# Vanilla AutoLogin
+# Turtle AutoLogin
 
-Patch for Vanilla WoW client that adds auto login and account info saving features.
+Patch for Turtle WoW client that adds auto login and account info saving features.
 
 > This patch saves your login info into `\WTF\Config.wtf` so keep in mind that it will **contain your passwords** and thus you should think before sharing this file with someone else.
 
@@ -14,16 +14,16 @@ Patch for Vanilla WoW client that adds auto login and account info saving featur
 
 ## Installation
 
-### [Patch-Y.MPQ download link](https://github.com/Haaxor1689/turtle-autologin/releases/download/release/Patch-Y.mpq)
+### [Patch-Y.MPQ download link](releases/download/release/Patch-Y.mpq)
 
 Download the `Patch-Y.MPQ` and place the file inside `\Data` folder of your client.
 
 ## Advanced usage
 
-Account information is saved under `accountName` in your `\WTF\Config.wtf` file. Unlike vanilla behavior, where it contains only the account name. When using this patch it will contain data in following format:
+Account information is saved under `accountName` in your `\WTF\Config.wtf` file, unlike normal behavior, where it contains only the account name. When using this patch it will contain data in following format:
 
 ```
-<name> <password> <character>;
+<name> <password> <character-index?>;
 ```
 
-Each entry ends with a `;` symbol. To disable character auto login, third value should be `-`.
+Each entry ends with a `;` symbol. To disable character auto login, omit third value and the space.
