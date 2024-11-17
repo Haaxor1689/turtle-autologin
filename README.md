@@ -14,16 +14,19 @@ Patch for Turtle WoW client that adds auto login and account info saving feature
 
 ## Installation
 
-### [Patch-Y.MPQ download link](../../releases/download/release/Patch-Y.mpq)
-
-Download the `Patch-Y.MPQ` and place the file inside `\Data` folder of your client.
+Download the repo and unpack it in such a way that the files end up in your WoW folder like this:
+```
+Data\Interface\GlueXML\AccountLogin.lua
+Data\Interface\GlueXML\AccountLogin.xml
+Data\Interface\GlueXML\Accounts.lua
+Data\Interface\GlueXML\CharacterSelect.lua
+Data\Interface\GlueXML\CharacterSelect.xml
+```
 
 ## Advanced usage
 
-Account information is saved under `accountName` in your `\WTF\Config.wtf` file, unlike normal behavior, where it contains only the account name. When using this patch it will contain data in following format:
+To store as many logins as you like open the `\Data\Interface\GlueXML\Accounts.lua` file and add your own logins to the file, these will be used instead of the above `Config.lua` entry which has a limit to how much it can store.
 
-```
-<name> <password> <character-index?>;
-```
-
-Each entry ends with a `;` symbol. To disable character auto login, omit third value and the space.
+---
+* Edited for Weird Vibes
+## Orignal author [Haaxor1689](https://github.com/Haaxor1689)

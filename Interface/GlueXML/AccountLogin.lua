@@ -5,7 +5,12 @@ Autologin_PageSize = 4;
 Autologin_LimitReached = false;
 
 function Autologin_Load()
-  Autologin_Table = {};
+  if next(AutoLoginAccounts) then
+    Autologin_Table = AutoLoginAccounts
+    AutologinRemoveAccountButton:Disable()
+    AutologinClearCharacterButton:Disable()
+    return
+  end
   local val = GetSavedAccountName()
   for n, p, c in string.gfind(val, "(%S+) (%S+) *(%d*);") do
     if (c == "") then c = "-" end
@@ -20,6 +25,7 @@ function Autologin_Load()
 end
 
 function Autologin_Save(name, password)
+  if next(AutoLoginAccounts) then return end
   -- Add/update name and password in table
   if (name ~= nil and name ~= "" and password ~= nil and password ~= "") then
     local exists = false;
