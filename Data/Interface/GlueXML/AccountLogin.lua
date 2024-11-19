@@ -143,6 +143,7 @@ function AutologinAccountButton_OnDoubleClick()
 end
 
 function Autologin_RemoveAccount()
+  if next(AutoLoginAccounts) then return end
   if (not Autologin_SelectedIdx) then return end
 
   table.remove(Autologin_Table, Autologin_SelectedIdx);
