@@ -1,8 +1,8 @@
 Autologin_Table = {}
-Autologin_SelectedIdx = nil;
-Autologin_CurrentPage = 0;
-Autologin_PageSize = 4;
-Autologin_LimitReached = false;
+Autologin_SelectedIdx = nil
+Autologin_CurrentPage = 0
+Autologin_PageSize = 4
+Autologin_LimitReached = false
 
 -- local has_superwow = SetAutoloot and true or false
 local _,_,superwow_version_major,superwow_version_minor = string.find(SUPERWOW_VERSION or "", "(%d+)%.(%d+)")
@@ -75,34 +75,34 @@ function LoginManager:LoadAccounts()
 
       -- Decompress duplicate passwords
       if (string.find(p, "~%d") == 1) then
-        p = Autologin_Table[tonumber(string.sub(p, 2, 3))].password;
+        p = Autologin_Table[tonumber(string.sub(p, 2, 3))].password
       end
 
-      table.insert(Autologin_Table, { account = n, password = p });
+      table.insert(Autologin_Table, { account = n, password = p })
     end
   end
 end
 
 function LoginManager:SaveAccounts(by_login)
   if by_login then
-    local account = AccountLoginAccountEdit:GetText();
+    local account = AccountLoginAccountEdit:GetText()
     local label = AccountLoginLabelEdit:GetText()
     local password = AccountLoginPasswordEdit:GetText()
     label = label ~= "" and label or nil
-    
+
     -- only try to overwrite a password when there is one to overwrite!
     if (account and account ~= "" and password and password ~= "") then
-      local exists = false;
+      local exists = false
       for i = 1, table.getn(Autologin_Table) do
         if (Autologin_Table[i].account == account) then
-          exists = true;
-          Autologin_Table[i].label = label;
-          Autologin_Table[i].password = ":"..password;
+          exists = true
+          Autologin_Table[i].label = label
+          Autologin_Table[i].password = ":"..password
           break
         end
       end
       if (not exists) then
-        table.insert(Autologin_Table, { label = label, account = account, password = ":"..password });
+        table.insert(Autologin_Table, { label = label, account = account, password = ":"..password })
       end
     end
   end
@@ -124,21 +124,20 @@ function Autologin_SelectAccount(idx)
   local lbl = Autologin_Table[idx].label
   local pwd = Autologin_Table[idx].password
 
-  AccountLoginAccountEdit:SetText(act);
-  AccountLoginLabelEdit:SetText(lbl or "");
-  AccountLoginPasswordEdit:SetText(string.sub(pwd,2));
+  AccountLoginAccountEdit:SetText(act)
+  AccountLoginLabelEdit:SetText(lbl or "")
+  AccountLoginPasswordEdit:SetText(string.sub(pwd,2))
 end
 
 function Autologin_OnNameUpdate(name)
-  Autologin_SelectedIdx = nil;
+  Autologin_SelectedIdx = nil
   for i = 1, table.getn(Autologin_Table) do
-    if (Autologin_Table[i].account == name) then Autologin_SelectedIdx = i; end
+    if (Autologin_Table[i].account == name) then Autologin_SelectedIdx = i end
   end
   if (Autologin_SelectedIdx) then
-    Autologin_CurrentPage = math.floor((Autologin_SelectedIdx - 1) /
-                                           Autologin_PageSize);
+    Autologin_CurrentPage = math.floor((Autologin_SelectedIdx - 1) / Autologin_PageSize)
   end
-  Autologin_UpdateUI();
+  Autologin_UpdateUI()
 end
 
 function Autologin_UpdateUI()
@@ -175,11 +174,11 @@ function Autologin_UpdateUI()
       getglobal("AutologinAccountButton" .. i .. "ButtonTextName"):SetText('Account:  ' .. r.account)
       getglobal("AutologinAccountButton" .. i .. "ButtonTextLabel"):SetText(r.label or "")
       getglobal("AutologinAccountButton" .. i .. "ButtonTextPassword"):SetText(
-          'Password: ' .. string.rep("*", string.len(r.password))
+        'Password: ' .. string.rep("*", string.len(r.password))
       )
       local autochar = r.auto == "true" and "|cffffff00" or ""
       getglobal("AutologinAccountButton" .. i .. "ButtonTextCharacter"):SetText(
-          'Character: ' .. (autochar .. (r.character or ""))
+        'Character: ' .. (autochar .. (r.character or ""))
       )
 
       -- Store the actual account index on the button for later reference.
@@ -199,17 +198,17 @@ function Autologin_UpdateUI()
 end
 
 function Autologin_OnLogin()
-  local name = AccountLoginAccountEdit:GetText();
-  local password = AccountLoginPasswordEdit:GetText();
+  local name = AccountLoginAccountEdit:GetText()
+  local password = AccountLoginPasswordEdit:GetText()
   
   LoginManager:SaveAccounts(true)
-  Autologin_OnNameUpdate(name);
-  DefaultServerLogin(name, password);
+  Autologin_OnNameUpdate(name)
+  DefaultServerLogin(name, password)
 end
 
 function AutologinAccountButton_OnClick(button)
   if button == "LeftButton" then
-    Autologin_SelectAccount(this.realID);
+    Autologin_SelectAccount(this.realID)
   elseif button == "RightButton" then
     local acct = Autologin_Table[this.realID]
     if acct then
@@ -219,43 +218,43 @@ function AutologinAccountButton_OnClick(button)
         acct.auto = "true"
       end
     end
-    Autologin_UpdateUI();
+    Autologin_UpdateUI()
   end
 end
 
 function AutologinAccountButton_OnDoubleClick()
-  Autologin_SelectAccount(this.realID);
-  AccountLogin_Login();
+  Autologin_SelectAccount(this.realID)
+  AccountLogin_Login()
 end
 
 function Autologin_RemoveAccount()
   if not next(AutoLoginAccounts) or not Autologin_SelectedIdx then return end
 
-  table.remove(Autologin_Table, Autologin_SelectedIdx);
+  table.remove(Autologin_Table, Autologin_SelectedIdx)
   LoginManager:SaveAccounts()
-  AccountLoginAccountEdit:SetText("");
-  AccountLoginLabelEdit:SetText("");
-  AccountLoginPasswordEdit:SetText("");
+  AccountLoginAccountEdit:SetText("")
+  AccountLoginLabelEdit:SetText("")
+  AccountLoginPasswordEdit:SetText("")
 
   if (Autologin_CurrentPage > 0 and Autologin_CurrentPage * Autologin_PageSize >
       table.getn(Autologin_Table) - 1) then
-    Autologin_CurrentPage = Autologin_CurrentPage - 1;
+    Autologin_CurrentPage = Autologin_CurrentPage - 1
   end
 
-  Autologin_UpdateUI();
+  Autologin_UpdateUI()
 end
 
 function Autologin_NextPage()
   if ((Autologin_CurrentPage + 1) * Autologin_PageSize >
       table.getn(Autologin_Table) - 1) then return end
-  Autologin_CurrentPage = Autologin_CurrentPage + 1;
-  Autologin_UpdateUI();
+  Autologin_CurrentPage = Autologin_CurrentPage + 1
+  Autologin_UpdateUI()
 end
 
 function Autologin_PrevPage()
   if (Autologin_CurrentPage == 0) then return end
-  Autologin_CurrentPage = Autologin_CurrentPage - 1;
-  Autologin_UpdateUI();
+  Autologin_CurrentPage = Autologin_CurrentPage - 1
+  Autologin_UpdateUI()
 end
 
 -- Vanilla code
