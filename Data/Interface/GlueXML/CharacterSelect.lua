@@ -1,34 +1,90 @@
 function Autologin_OnCharactersLoad()
-  Autologin_Load();
-  local selected = Autologin_Table[Autologin_SelectedIdx];
-  if (not selected) then
-    AutologinSaveCharacterButton:Hide();
-    return;
-  end
+  -- load accounts if needed
+  if not next(Autologin_Table) then LoginManager:LoadAccounts() end
 
   AutologinSaveCharacterButton:Show();
-  if (selected.character == '-') then return end
+
+  -- if we came from the login screen Autologin_SelectedIdx exists
+  local from_login = Autologin_SelectedIdx and true or false
+
+  -- if not from login screen, check last login
+  if not Autologin_SelectedIdx then
+    local correct = false
+    for i,data in pairs(Autologin_Table) do
+      if correct then break end -- can try more than one "last" just in case
+      if data.last == "true" then
+        -- confirm the account is correct by checking characters
+        for c = 1, GetNumCharacters() do
+          local name = GetCharacterInfo(c);
+          if (name == data.character) then
+            Autologin_SelectedIdx = i
+            correct = true
+            break
+          end
+        end
+      end
+    end
+  end
+
+  -- still nothing? give up
+  if not Autologin_SelectedIdx then
+    AutologinSaveCharacterButton:Hide()
+    return
+  end
+
+  local selected = Autologin_Table[Autologin_SelectedIdx]
+
+  -- set if this was the last chosen account
+  for ix,data in pairs(Autologin_Table) do
+    if ix == Autologin_SelectedIdx then
+      Autologin_Table[ix].last = "true"
+    else
+      Autologin_Table[ix].last = "false"
+    end
+  end
+
+  AutologinSaveCharacterButton:SetChecked((selected.auto == "true") and 1)
 
   -- Get id from the character name
-  -- for i = 1, GetNumCharacters() do
-  --   local name = GetCharacterInfo(i);
-  --   if (name == selected.character) then
-  --     SelectCharacter(i);
-  --     EnterWorld();
-  --   end
-  -- end
-  SelectCharacter(tonumber(selected.character));
-  EnterWorld();
+  for c = 1, GetNumCharacters() do
+    local name = GetCharacterInfo(c);
+    if (name == selected.character) then
+      SelectCharacter(c);
+      if selected.auto == "true" and from_login then
+        LoginManager:SaveAccounts();
+        EnterWorld();
+      end
+    end
+  end
 end
 
 function Autologin_EnterWorld()
   -- Update autologin character if checkbox is checked
-  if (Autologin_SelectedIdx and AutologinSaveCharacterButton:GetChecked()) then
+  local ix = Autologin_SelectedIdx
+
+  if Autologin_SelectedIdx and Autologin_Table[Autologin_SelectedIdx] then
     -- local name = GetCharacterInfo(CharacterSelect.selectedIndex);
     -- Autologin_Table[Autologin_SelectedIdx].character = name;
-    Autologin_Table[Autologin_SelectedIdx].character = CharacterSelect.selectedIndex;
-    Autologin_Save();
+    Autologin_Table[Autologin_SelectedIdx].character = GetCharacterInfo(CharacterSelect.selectedIndex);
+  else
+    -- search for last account and update character settings
+    for i,data in pairs(Autologin_Table) do
+      if data.last == "true" then
+        Autologin_Table[i].character = GetCharacterInfo(CharacterSelect.selectedIndex)
+        ix = i
+        break
+      end
+    end
   end
+  if ix then
+    if (AutologinSaveCharacterButton:GetChecked()) then
+      Autologin_Table[ix].auto = "true"
+    else
+      Autologin_Table[ix].auto = "false"
+    end
+  end
+
+  LoginManager:SaveAccounts();
 
   EnterWorld();
 end

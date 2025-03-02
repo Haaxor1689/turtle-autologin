@@ -4,82 +4,156 @@ Autologin_CurrentPage = 0;
 Autologin_PageSize = 4;
 Autologin_LimitReached = false;
 
-function Autologin_Load()
-  if next(AutoLoginAccounts) then
-    Autologin_Table = AutoLoginAccounts
-    AutologinRemoveAccountButton:Disable()
-    AutologinClearCharacterButton:Disable()
-    return
-  end
-  local val = GetSavedAccountName()
-  for n, p, c in string.gfind(val, "(%S+) (%S+) *(%d*);") do
-    if (c == "") then c = "-" end
+-- local has_superwow = SetAutoloot and true or false
+local _,_,superwow_version_major,superwow_version_minor = string.find(SUPERWOW_VERSION or "", "(%d+)%.(%d+)")
+superwow_version_major = tonumber(superwow_version_major) or -1
+superwow_version_minor = tonumber(superwow_version_minor) or -1
 
-    -- Decompress duplicate passwords
-    if (string.find(p, "~%d") == 1) then
-      p = Autologin_Table[tonumber(string.sub(p, 2, 3))].password;
-    end
-
-    table.insert(Autologin_Table, { name = n, password = p, character = c });
-  end
+if not (superwow_version_major >= 1 and superwow_version_minor >= 4) then
+  -- show popup saying this won't work
 end
 
-function Autologin_Save(name, password)
-  if next(AutoLoginAccounts) then return end
-  -- Add/update name and password in table
-  if (name ~= nil and name ~= "" and password ~= nil and password ~= "") then
-    local exists = false;
-    for i = 1, table.getn(Autologin_Table) do
-      if (Autologin_Table[i].name == name) then
-        exists = true;
-        Autologin_Table[i].password = password;
+-- A simple pure-Lua XOR function for two numbers.
+local function bitXor(a, b)
+  local r, bitVal = 0, 1
+  while a > 0 or b > 0 do
+    local aBit = math.mod(a, 2)
+    local bBit = math.mod(b, 2)
+    if aBit ~= bBit then
+      r = r + bitVal
+    end
+    a = math.floor(a / 2)
+    b = math.floor(b / 2)
+    bitVal = bitVal * 2
+  end
+  return r
+end
+
+local function simpleXOREncryptDecrypt(text, key)
+  local keyLen = string.len(key)
+  local result = {}
+  for i = 1, string.len(text) do
+    local textByte = string.byte(text, i)
+    local keyByte  = string.byte(key, (math.mod((i - 1), keyLen)) + 1)
+    result[i] = string.char(bitXor(textByte, keyByte))
+  end
+  return table.concat(result)
+end
+
+
+LoginManager = {}
+LoginManager.cy_s = "simple"
+LoginManager.loaded_from_account_name = false
+
+-- No-ops right now, it's more useful to have a plaintext
+function LoginManager:Encrypt(data)
+  -- simpleXOREncryptDecrypt(data,self.cy_s)
+  return data
+end
+
+function LoginManager:Decrypt(data)
+  -- simpleXOREncryptDecrypt(data,self.cy_s)
+  return data
+end
+
+-- Strangely when you login and cancel the program scrubs the string you used for the password from _anywhere_ it finds it.
+-- Essentially it deletes the immutable string itself. We avoid this by storing the password string in memory with a
+-- leading : and clip the : at use-time
+function LoginManager:LoadAccounts()
+  local login_data = ImportFile("logins")
+  if login_data then
+    login_data = self:Decrypt(login_data)
+    for label,account,password,character,auto,last in string.gfind(login_data, "label:(%S*) account:(%S+) password(:%S+) character:(%S*) auto:(%S*) last:(%S*)\n") do
+      local label = label
+      local account = account
+      local password = password
+      local character = character
+      local auto = auto
+      local last = last
+      table.insert(Autologin_Table, { label = label, account = account, password = password, character = character, auto = auto, last = last })
+      -- ExportFile("faf",(ImportFile("faf") or "") .. ("load  : "..account .. " "..(password or "none") .. "\n"))
+    end
+  end
+  -- no saved passwords? check the old style account string storage
+  if not next(Autologin_Table) then
+    local val = GetSavedAccountName()
+    for n, p, c in string.gfind(val, "(%S+) (%S+) *(%d*);") do
+      if (c == "") then c = "-" end
+
+      -- Decompress duplicate passwords
+      if (string.find(p, "~%d") == 1) then
+        p = Autologin_Table[tonumber(string.sub(p, 2, 3))].password;
+      end
+
+      table.insert(Autologin_Table, { account = n, password = p });
+    end
+  end
+end
+-- LoginManager:LoadAccounts()
+
+function LoginManager:SaveAccounts(by_login)
+  if by_login then
+    local account = AccountLoginAccountEdit:GetText();
+    local label = AccountLoginLabelEdit:GetText()
+    local password = AccountLoginPasswordEdit:GetText()
+    label = label ~= "" and label or nil
+    -- ExportFile("faf",(ImportFile("faf") or "") .. ("pasbox: "..account .. " "..(password or "none") .. "\n"))
+    
+    -- only try to overwrite a password when there is one to overwrite!
+    if (account and account ~= "" and password and password ~= "") then
+      local exists = false;
+      for i = 1, table.getn(Autologin_Table) do
+        if (Autologin_Table[i].account == account) then
+          local l = label
+          local p = password
+          exists = true;
+          Autologin_Table[i].label = l;
+          Autologin_Table[i].password = ":"..p;
+          -- ExportFile("faf",(ImportFile("faf") or "") .. ("exists: "..account .. " "..(password or "none") .. "\n"))
+          break
+        end
+      end
+      if (not exists) then
+        -- ExportFile("faf",(ImportFile("faf") or "") .. ("notexists: "..account .. " "  ..(password or "none") .. "\n"))
+
+        table.insert(Autologin_Table, { label = label, account = account, password = ":"..password });
       end
     end
-    if (not exists) then
-      table.insert(Autologin_Table,
-                   { name = name, password = password, character = "-" });
-    end
   end
 
-  -- If table is empty, reset saved var
-  if (table.getn(Autologin_Table) == 0) then
-    SetSavedAccountName('');
-    return;
+  local login_data = ""
+  for ix,data in pairs(Autologin_Table) do
+    -- local p = string.lower(data.password)
+    local copy = string.format("%s", data.password)
+    login_data = login_data .. format("label:%s account:%s password%s character:%s auto:%s last:%s\n", data.label or "", data.account, copy, data.character or "", data.auto or "false", data.last or "false")
+    -- ExportFile("faf",(ImportFile("faf") or "") .. ("relod: ".. data.label .. " " .. data.account .. " "..(data.password or "none") .. "\n"))
   end
-
-  -- Serialize table to saved var
-  local savedVar = "";
-  for i = 1, table.getn(Autologin_Table) do
-    local r = Autologin_Table[i];
-
-    -- Compress duplicate passwords
-    local pw = r.password;
-    for j = 1, i - 1 do
-      if (Autologin_Table[j].password == r.password) then pw = '~' .. j end
-    end
-
-    savedVar = savedVar .. r.name .. ' ' .. pw;
-    if (r.character == "-") then
-      savedVar = savedVar .. ";";
-    else
-      savedVar = savedVar .. ' ' .. r.character .. ';';
-    end
-  end
-
-  Autologin_LimitReached = string.len(savedVar) > 128;
-  SetSavedAccountName(savedVar);
+  ExportFile("logins",self:Encrypt(login_data))
+  -- if self.loaded_from_account_name then
+  --   local _,_,name = string.find(GetSavedAccountName(), "(%S+)")
+  --   SetSavedAccountName(name)
+  -- end
 end
 
 function Autologin_SelectAccount(idx)
   local i = Autologin_CurrentPage * Autologin_PageSize + idx;
-  AccountLoginAccountEdit:SetText(Autologin_Table[i].name);
-  AccountLoginPasswordEdit:SetText(Autologin_Table[i].password);
+  local act = Autologin_Table[i].account
+  local lbl = Autologin_Table[i].label
+  local pwd = Autologin_Table[i].password
+  local tmp = pwd
+  -- ExportFile("tmp.txt",password)
+  -- local scratch_password = ImportFile("tmp.txt")
+
+  AccountLoginAccountEdit:SetText(act);
+  AccountLoginLabelEdit:SetText(lbl or "");
+  AccountLoginPasswordEdit:SetText(string.sub(tmp,2));
+  -- Autologin_Table[i].password = Autologin_Table[i].swap
 end
 
 function Autologin_OnNameUpdate(name)
   Autologin_SelectedIdx = nil;
   for i = 1, table.getn(Autologin_Table) do
-    if (Autologin_Table[i].name == name) then Autologin_SelectedIdx = i; end
+    if (Autologin_Table[i].account == name) then Autologin_SelectedIdx = i; end
   end
   if (Autologin_SelectedIdx) then
     Autologin_CurrentPage = math.floor((Autologin_SelectedIdx - 1) /
@@ -98,17 +172,15 @@ function Autologin_UpdateUI()
       local r = Autologin_Table[skip + i];
       getglobal("AutologinAccountButton" .. i):Show();
       getglobal("AutologinAccountButton" .. i .. "ButtonTextName"):SetText(
-          r.name);
+          'Account:  ' .. r.account);
+      getglobal("AutologinAccountButton" .. i .. "ButtonTextLabel"):SetText(
+          r.label or "");
       getglobal("AutologinAccountButton" .. i .. "ButtonTextPassword"):SetText(
           'Password: ' .. string.rep("*", string.len(r.password)));
 
-      if (r.character == '-') then
-        getglobal("AutologinAccountButton" .. i .. "ButtonTextCharacter"):SetText(
-            "");
-      else
-        getglobal("AutologinAccountButton" .. i .. "ButtonTextCharacter"):SetText(
-            'Character: ' .. r.character);
-      end
+      local autochar = r.auto == "true" and "|cffffff00" or ""
+      getglobal("AutologinAccountButton" .. i .. "ButtonTextCharacter"):SetText(
+          'Character: ' .. ((r.character and (autochar .. r.character)) or ""));
 
       if (Autologin_SelectedIdx == skip + i) then
         getglobal("AutologinAccountButton" .. i):LockHighlight();
@@ -126,16 +198,33 @@ end
 function Autologin_OnLogin()
   local name = AccountLoginAccountEdit:GetText();
   local password = AccountLoginPasswordEdit:GetText();
+  
+  -- if not next(Autologin_Table) then LoginManager:LoadAccounts() end
 
   -- Autologin OnLogin
-  Autologin_Save(name, password);
+  -- Autologin_Save(name, password);
+  LoginManager:SaveAccounts(true)
   Autologin_OnNameUpdate(name);
   DefaultServerLogin(name, password);
-  Autologin_Load();
-  Autologin_UpdateUI();
+  -- Autologin_Load();
+  -- Autologin_UpdateUI();
 end
 
-function AutologinAccountButton_OnClick() Autologin_SelectAccount(this:GetID()); end
+function AutologinAccountButton_OnClick(button)
+  if button == "LeftButton" then
+    Autologin_SelectAccount(this:GetID());
+  elseif button == "RightButton" then
+    local i = Autologin_CurrentPage * Autologin_PageSize + this:GetID();
+    if Autologin_Table[i] then
+      if Autologin_Table[i].auto == "true" then
+        Autologin_Table[i].auto = "false"
+      elseif Autologin_Table[i].auto == "false" then
+        Autologin_Table[i].auto = "true"
+      end
+    end
+    Autologin_UpdateUI();
+  end
+end
 
 function AutologinAccountButton_OnDoubleClick()
   Autologin_SelectAccount(this:GetID());
@@ -143,12 +232,13 @@ function AutologinAccountButton_OnDoubleClick()
 end
 
 function Autologin_RemoveAccount()
-  if next(AutoLoginAccounts) then return end
-  if (not Autologin_SelectedIdx) then return end
+  if not next(AutoLoginAccounts) or not Autologin_SelectedIdx then return end
 
   table.remove(Autologin_Table, Autologin_SelectedIdx);
-  Autologin_Save();
+  -- Autologin_Save();
+  LoginManager:SaveAccounts()
   AccountLoginAccountEdit:SetText("");
+  AccountLoginLabelEdit:SetText("");
   AccountLoginPasswordEdit:SetText("");
 
   if (Autologin_CurrentPage > 0 and Autologin_CurrentPage * Autologin_PageSize >
@@ -156,14 +246,6 @@ function Autologin_RemoveAccount()
     Autologin_CurrentPage = Autologin_CurrentPage - 1;
   end
 
-  Autologin_UpdateUI();
-end
-
-function Autologin_ClearCharacter()
-  if (not Autologin_SelectedIdx) then return end
-
-  Autologin_Table[Autologin_SelectedIdx].character = '-';
-  Autologin_Save();
   Autologin_UpdateUI();
 end
 
@@ -204,6 +286,11 @@ function AccountLogin_OnLoad()
                                                  backdropColor[3]);
   AccountLoginAccountEdit:SetBackdropColor(backdropColor[4], backdropColor[5],
                                            backdropColor[6]);
+  AccountLoginLabelEdit:SetBackdropBorderColor(backdropColor[1],
+                                               backdropColor[2],
+                                               backdropColor[3]);
+  AccountLoginLabelEdit:SetBackdropColor(backdropColor[4], backdropColor[5],
+                                         backdropColor[6]);
   AccountLoginPasswordEdit:SetBackdropBorderColor(backdropColor[1],
                                                   backdropColor[2],
                                                   backdropColor[3]);
@@ -223,8 +310,8 @@ function AccountLogin_OnShow()
     AccountLoginRealmName:Hide()
   end
 
-  -- Autologin OnShow
-  Autologin_Load();
+  if not next(Autologin_Table) then LoginManager:LoadAccounts() end
+
   if (table.getn(Autologin_Table) ~= 0) then Autologin_SelectAccount(1); end
   Autologin_UpdateUI();
 
@@ -236,6 +323,8 @@ function AccountLogin_OnShow()
 end
 
 function AccountLogin_FocusPassword() AccountLoginPasswordEdit:SetFocus(); end
+
+function AccountLogin_FocusLabel() AccountLoginLabelEdit:SetFocus(); end
 
 function AccountLogin_FocusAccountName() AccountLoginAccountEdit:SetFocus(); end
 
@@ -278,6 +367,7 @@ end
 
 function AccountLogin_Login()
   PlaySound("gsLogin");
+  -- LoginManager:SaveAccounts()
   Autologin_OnLogin();
 end
 

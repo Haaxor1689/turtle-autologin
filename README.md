@@ -1,15 +1,20 @@
 # Turtle AutoLogin
 
+* Requires a recent enough version of [SuperWow](https://github.com/balakethelock/SuperWoW/), currently `>=1.4`  
+
 Patch for Turtle WoW client that adds auto login and account info saving features.
 
-> This patch saves your login info into `\WTF\Config.wtf` so keep in mind that it will **contain your passwords** and thus you should think before sharing this file with someone else.
+> This patch saves your login info into `\Imports\logins.txt` so keep in mind that it will **contain your passwords** and thus you should think before sharing this file with someone else.  
+
+> This patch is a replacement for patches like [vanilla-autologin](https://github.com/Haaxor1689/vanilla-autologin), remove them before using it.  
 
 ## Features
 
 - Adds an Accounts select panel to the login screen
 - Automatically adds accounts with saved login info to the list
 - Select accounts to log in (double-click to login directly)
-- Check "Auto-login this character" in character select screen to always automatically load into game with this character selected in future logins
+- Right click to toggle autologin for an account, auto-login will log directly into the last chosen character on login.
+- - Alternatively check "Auto-login this character" in character select screen to do the same from the char screen.
 - Remove saved character and accounts with controls at the bottom
 
 ## Installation
@@ -22,10 +27,6 @@ Data\Interface\GlueXML\Accounts.lua
 Data\Interface\GlueXML\CharacterSelect.lua
 Data\Interface\GlueXML\CharacterSelect.xml
 ```
-
-## Advanced usage
-
-To store as many logins as you like open the `\Data\Interface\GlueXML\Accounts.lua` file and add your own logins to the file, these will be used instead of the above `Config.lua` entry which has a limit to how much it can store.
 
 ---
 * Edited for Weird Vibes
