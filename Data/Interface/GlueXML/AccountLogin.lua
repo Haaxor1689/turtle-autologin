@@ -64,14 +64,7 @@ function LoginManager:LoadAccounts()
   if login_data then
     login_data = self:Decrypt(login_data)
     for label,account,password,character,auto,last in string.gfind(login_data, "label:(%S*) account:(%S+) password(:%S+) character:(%S*) auto:(%S*) last:(%S*)\n") do
-      local label = label
-      local account = account
-      local password = password
-      local character = character
-      local auto = auto
-      local last = last
       table.insert(Autologin_Table, { label = label, account = account, password = password, character = character, auto = auto, last = last })
-      -- ExportFile("faf",(ImportFile("faf") or "") .. ("load  : "..account .. " "..(password or "none") .. "\n"))
     end
   end
   -- no saved passwords? check the old style account string storage
@@ -89,7 +82,6 @@ function LoginManager:LoadAccounts()
     end
   end
 end
--- LoginManager:LoadAccounts()
 
 function LoginManager:SaveAccounts(by_login)
   if by_login then
@@ -97,25 +89,19 @@ function LoginManager:SaveAccounts(by_login)
     local label = AccountLoginLabelEdit:GetText()
     local password = AccountLoginPasswordEdit:GetText()
     label = label ~= "" and label or nil
-    -- ExportFile("faf",(ImportFile("faf") or "") .. ("pasbox: "..account .. " "..(password or "none") .. "\n"))
     
     -- only try to overwrite a password when there is one to overwrite!
     if (account and account ~= "" and password and password ~= "") then
       local exists = false;
       for i = 1, table.getn(Autologin_Table) do
         if (Autologin_Table[i].account == account) then
-          local l = label
-          local p = password
           exists = true;
-          Autologin_Table[i].label = l;
-          Autologin_Table[i].password = ":"..p;
-          -- ExportFile("faf",(ImportFile("faf") or "") .. ("exists: "..account .. " "..(password or "none") .. "\n"))
+          Autologin_Table[i].label = label;
+          Autologin_Table[i].password = ":"..password;
           break
         end
       end
       if (not exists) then
-        -- ExportFile("faf",(ImportFile("faf") or "") .. ("notexists: "..account .. " "  ..(password or "none") .. "\n"))
-
         table.insert(Autologin_Table, { label = label, account = account, password = ":"..password });
       end
     end
@@ -123,31 +109,24 @@ function LoginManager:SaveAccounts(by_login)
 
   local login_data = ""
   for ix,data in pairs(Autologin_Table) do
-    -- local p = string.lower(data.password)
-    local copy = string.format("%s", data.password)
-    login_data = login_data .. format("label:%s account:%s password%s character:%s auto:%s last:%s\n", data.label or "", data.account, copy, data.character or "", data.auto or "false", data.last or "false")
-    -- ExportFile("faf",(ImportFile("faf") or "") .. ("relod: ".. data.label .. " " .. data.account .. " "..(data.password or "none") .. "\n"))
+    login_data = login_data .. format("label:%s account:%s password%s character:%s auto:%s last:%s\n", data.label or "", data.account, data.password, data.character or "", data.auto or "false", data.last or "false")
   end
   ExportFile("logins",self:Encrypt(login_data))
-  -- if self.loaded_from_account_name then
-  --   local _,_,name = string.find(GetSavedAccountName(), "(%S+)")
-  --   SetSavedAccountName(name)
-  -- end
+end
+
+function Autologin_SaveLabel()
+  LoginManager:SaveAccounts(true)
+  Autologin_UpdateUI()
 end
 
 function Autologin_SelectAccount(idx)
-  local i = Autologin_CurrentPage * Autologin_PageSize + idx;
-  local act = Autologin_Table[i].account
-  local lbl = Autologin_Table[i].label
-  local pwd = Autologin_Table[i].password
-  local tmp = pwd
-  -- ExportFile("tmp.txt",password)
-  -- local scratch_password = ImportFile("tmp.txt")
+  local act = Autologin_Table[idx].account
+  local lbl = Autologin_Table[idx].label
+  local pwd = Autologin_Table[idx].password
 
   AccountLoginAccountEdit:SetText(act);
   AccountLoginLabelEdit:SetText(lbl or "");
-  AccountLoginPasswordEdit:SetText(string.sub(tmp,2));
-  -- Autologin_Table[i].password = Autologin_Table[i].swap
+  AccountLoginPasswordEdit:SetText(string.sub(pwd,2));
 end
 
 function Autologin_OnNameUpdate(name)
@@ -163,35 +142,59 @@ function Autologin_OnNameUpdate(name)
 end
 
 function Autologin_UpdateUI()
-  local skip = Autologin_CurrentPage * Autologin_PageSize;
-  for i = 1, Autologin_PageSize do
-    getglobal("AutologinAccountButton" .. i):UnlockHighlight();
-    if (skip + i > table.getn(Autologin_Table)) then
-      getglobal("AutologinAccountButton" .. i):Hide();
-    else
-      local r = Autologin_Table[skip + i];
-      getglobal("AutologinAccountButton" .. i):Show();
-      getglobal("AutologinAccountButton" .. i .. "ButtonTextName"):SetText(
-          'Account:  ' .. r.account);
-      getglobal("AutologinAccountButton" .. i .. "ButtonTextLabel"):SetText(
-          r.label or "");
-      getglobal("AutologinAccountButton" .. i .. "ButtonTextPassword"):SetText(
-          'Password: ' .. string.rep("*", string.len(r.password)));
+  local skip = Autologin_CurrentPage * Autologin_PageSize
+  local total = table.getn(Autologin_Table)
+  local pageIndices = {}
 
+  -- Build a list of indices for the current page.
+  for i = 1, Autologin_PageSize do
+    local idx = skip + i
+    if idx <= total then
+      table.insert(pageIndices, idx)
+    end
+  end
+
+  -- Sort the indices based on the label name alphabetically.
+  table.sort(pageIndices, function(a, b)
+    local labelA = Autologin_Table[a].label or ""
+    local labelB = Autologin_Table[b].label or ""
+    return labelA < labelB
+  end)
+
+  -- Update each button using the sorted order.
+  for i = 1, Autologin_PageSize do
+    local btn = getglobal("AutologinAccountButton" .. i)
+    btn:UnlockHighlight()
+    if not pageIndices[i] then
+      btn:Hide()
+      btn.realID = nil
+    else
+      local idx = pageIndices[i]
+      local r = Autologin_Table[idx]
+      btn:Show()
+      getglobal("AutologinAccountButton" .. i .. "ButtonTextName"):SetText('Account:  ' .. r.account)
+      getglobal("AutologinAccountButton" .. i .. "ButtonTextLabel"):SetText(r.label or "")
+      getglobal("AutologinAccountButton" .. i .. "ButtonTextPassword"):SetText(
+          'Password: ' .. string.rep("*", string.len(r.password))
+      )
       local autochar = r.auto == "true" and "|cffffff00" or ""
       getglobal("AutologinAccountButton" .. i .. "ButtonTextCharacter"):SetText(
-          'Character: ' .. ((r.character and (autochar .. r.character)) or ""));
+          'Character: ' .. (autochar .. (r.character or ""))
+      )
 
-      if (Autologin_SelectedIdx == skip + i) then
-        getglobal("AutologinAccountButton" .. i):LockHighlight();
+      -- Store the actual account index on the button for later reference.
+      btn.realID = idx
+
+      if (Autologin_SelectedIdx == idx) then
+        btn:LockHighlight()
       end
     end
   end
 
   if (Autologin_LimitReached) then
-    getglobal("AutologinSizeWarning"):Show();
+    getglobal("AutologinSizeWarning"):Show()
   else
-    getglobal("AutologinSizeWarning"):Hide();
+    getglobal("AutologinSizeWarning"):Hide()
   end
 end
 
@@ -199,27 +202,21 @@ function Autologin_OnLogin()
   local name = AccountLoginAccountEdit:GetText();
   local password = AccountLoginPasswordEdit:GetText();
   
-  -- if not next(Autologin_Table) then LoginManager:LoadAccounts() end
-
-  -- Autologin OnLogin
-  -- Autologin_Save(name, password);
   LoginManager:SaveAccounts(true)
   Autologin_OnNameUpdate(name);
   DefaultServerLogin(name, password);
-  -- Autologin_Load();
-  -- Autologin_UpdateUI();
 end
 
 function AutologinAccountButton_OnClick(button)
   if button == "LeftButton" then
-    Autologin_SelectAccount(this:GetID());
+    Autologin_SelectAccount(this.realID);
   elseif button == "RightButton" then
-    local i = Autologin_CurrentPage * Autologin_PageSize + this:GetID();
-    if Autologin_Table[i] then
-      if Autologin_Table[i].auto == "true" then
-        Autologin_Table[i].auto = "false"
-      elseif Autologin_Table[i].auto == "false" then
-        Autologin_Table[i].auto = "true"
+    local acct = Autologin_Table[this.realID]
+    if acct then
+      if acct.auto == "true" then
+        acct.auto = "false"
+      elseif acct.auto == "false" then
+        acct.auto = "true"
       end
     end
     Autologin_UpdateUI();
@@ -227,7 +224,7 @@ function AutologinAccountButton_OnClick(button)
 end
 
 function AutologinAccountButton_OnDoubleClick()
-  Autologin_SelectAccount(this:GetID());
+  Autologin_SelectAccount(this.realID);
   AccountLogin_Login();
 end
 
@@ -235,7 +232,6 @@ function Autologin_RemoveAccount()
   if not next(AutoLoginAccounts) or not Autologin_SelectedIdx then return end
 
   table.remove(Autologin_Table, Autologin_SelectedIdx);
-  -- Autologin_Save();
   LoginManager:SaveAccounts()
   AccountLoginAccountEdit:SetText("");
   AccountLoginLabelEdit:SetText("");

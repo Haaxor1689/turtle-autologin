@@ -464,9 +464,9 @@
 								<!-- AccountLogin_Exit(); -->
 								this:ClearFocus();
 							</OnEscapePressed>
-							<!-- <OnEnterPressed> -->
-								<!-- AccountLogin_Login(); -->
-							<!-- </OnEnterPressed> -->
+							<OnEnterPressed>
+								Autologin_SaveLabel();
+							</OnEnterPressed>
 							<OnEditFocusLost>
 								this:HighlightText(0, 0);
 							</OnEditFocusLost>
