@@ -14,7 +14,7 @@ Patch for Turtle WoW client that adds auto login and account info saving feature
 - Automatically adds accounts with saved login info to the list
 - Select accounts to log in (double-click to login directly)
 - Right click to toggle autologin for an account, auto-login will log directly into the last chosen character on login.
-- - Alternatively check "Auto-login this character" in character select screen to do the same from the char screen.
+- - Alternatively check "Auto-login this character" in character select screen.
 - Remove saved character and accounts with controls at the bottom
 
 ## Installation
@@ -23,11 +23,10 @@ Download the repo and unpack it in such a way that the files end up in your WoW 
 ```
 Data\Interface\GlueXML\AccountLogin.lua
 Data\Interface\GlueXML\AccountLogin.xml
-Data\Interface\GlueXML\Accounts.lua
 Data\Interface\GlueXML\CharacterSelect.lua
 Data\Interface\GlueXML\CharacterSelect.xml
 ```
 
 ---
-* Edited for Weird Vibes
-## Orignal author [Haaxor1689](https://github.com/Haaxor1689)
+* Created for Weird Vibes
+* Orignal idea by [Haaxor1689](https://github.com/Haaxor1689)
