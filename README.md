@@ -16,7 +16,7 @@ Patch for Turtle WoW client that adds auto login and account info saving feature
 - Right click to toggle autologin for an account, auto-login will log directly into the last chosen character on login.
 - - Alternatively check "Auto-login this character" in character select screen.
 - Remove saved character and accounts with controls at the bottom
-
+- Does not currently support multiple servers. Will probably work still but could have errors.
 ## Installation
 
 Download the repo and unpack it in such a way that the files end up in your WoW folder like this:

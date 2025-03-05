@@ -7,20 +7,14 @@ function Autologin_OnCharactersLoad()
   -- if we came from the login screen Autologin_SelectedIdx exists
   local from_login = Autologin_SelectedIdx and true or false
 
-  -- if not from login screen, check last login
+  -- if not from login screen, check characters to see the account
   if not Autologin_SelectedIdx then
-    local correct = false
     for i,data in pairs(Autologin_Table) do
-      if correct then break end -- can try more than one "last" just in case
-      if data.last == "true" then
-        -- confirm the account is correct by checking characters
-        for c = 1, GetNumCharacters() do
-          local name = GetCharacterInfo(c);
-          if (name == data.character) then
-            Autologin_SelectedIdx = i
-            correct = true
-            break
-          end
+      for c = 1, GetNumCharacters() do
+        local name = GetCharacterInfo(c);
+        if (name == data.character) then
+          Autologin_SelectedIdx = i
+          break
         end
       end
     end
@@ -34,7 +28,7 @@ function Autologin_OnCharactersLoad()
 
   local selected = Autologin_Table[Autologin_SelectedIdx]
 
-  -- set if this was the last chosen account
+  -- set if this was the last chosen account, unset others
   for ix,data in pairs(Autologin_Table) do
     if ix == Autologin_SelectedIdx then
       Autologin_Table[ix].last = "true"
@@ -63,11 +57,9 @@ function Autologin_EnterWorld()
   local ix = Autologin_SelectedIdx
 
   if Autologin_SelectedIdx and Autologin_Table[Autologin_SelectedIdx] then
-    -- local name = GetCharacterInfo(CharacterSelect.selectedIndex);
-    -- Autologin_Table[Autologin_SelectedIdx].character = name;
     Autologin_Table[Autologin_SelectedIdx].character = GetCharacterInfo(CharacterSelect.selectedIndex);
   else
-    -- search for last account and update character settings
+    -- No SelectedIdx from login screen or from character search? use last account
     for i,data in pairs(Autologin_Table) do
       if data.last == "true" then
         Autologin_Table[i].character = GetCharacterInfo(CharacterSelect.selectedIndex)
