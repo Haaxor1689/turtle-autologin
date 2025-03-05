@@ -1,0 +1,227 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+	<Script file="AutoLogin.lua"/>
+	<Button name="AutologinAccountButtonTemplate" virtual="true" registerForClicks="LeftButton,RightButton">
+		<Size>
+			<AbsDimension x="256" y="60"/>
+		</Size>
+		<HitRectInsets>
+			<AbsInset left="0" right="0" top="0" bottom="15"/>
+		</HitRectInsets>
+		<Frames>
+			<Frame name="$parentButtonText" setAllPoints="true">
+				<Layers>
+					<Layer level="BORDER">
+						<FontString name="$parentName" inherits="GlueFontNormal" justifyH="LEFT">
+							<Size>
+								<AbsDimension x="217" y="13"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT">
+									<Offset>
+										<AbsDimension x="0" y="-5"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+						<FontString name="$parentCharacter" inherits="GlueFontDisableSmall" justifyH="LEFT">
+							<Size>
+								<AbsDimension x="217" y="16"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeTo="$parentName" relativePoint="BOTTOMLEFT">
+									<Offset>
+										<AbsDimension x="0" y="-2"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnMouseUp>
+				AutologinAccountButton_OnClick(arg1);
+			</OnMouseUp>
+			<OnDoubleClick>
+				AutologinAccountButton_OnDoubleClick();
+			</OnDoubleClick>
+		</Scripts>
+		<HighlightTexture file="Interface\Glues\CharacterSelect\Glue-CharacterSelect-Highlight" alphaMode="ADD">
+			<Size>
+				<AbsDimension x="256" y="60"/>
+			</Size>
+			<Anchors>
+				<Anchor point="TOPLEFT">
+					<Offset>
+						<AbsDimension x="-20" y="8"/>
+					</Offset>
+				</Anchor>
+			</Anchors>
+		</HighlightTexture>
+		<NormalFont inherits="GlueFontNormal"/>
+		<HighlightFont inherits="GlueFontHighlight"/>
+	</Button>
+	<Frame name="AutologinAccountsFrame" parent="AccountLoginUI">
+		<Size>
+			<AbsDimension x="260" y="348"/>
+		</Size>
+		<Anchors>
+			<Anchor point="TOPRIGHT">
+				<Offset>
+					<AbsDimension x="-5" y="-15"/>
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+					<FontString text="Select account" inherits="GlueFontDisableLarge">
+						<Size>
+							<AbsDimension x="256" y="13"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOP">
+								<Offset>
+									<AbsDimension x="0" y="-10"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</FontString>
+					<!-- <FontString name="AutologinSizeWarning" inherits="GlueFontRedSmall" text="WARNING: Too many accounts. Changes won't be saved correctly.">
+						<Size>
+							<AbsDimension x="220" y="28"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOP" relativeTo="AutologinAccountsFrame" relativePoint="BOTTOM">
+								<Offset>
+									<AbsDimension x="0" y="4"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</FontString> -->
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button name="AutologinAccountButton1" inherits="AutologinAccountButtonTemplate" id="1">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="AutologinAccountsFrame" relativePoint="TOP">
+						<Offset>
+							<AbsDimension x="22" y="-30"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="AutologinAccountButton2" inherits="AutologinAccountButtonTemplate" id="2">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="AutologinAccountButton1" relativePoint="BOTTOM">
+						<Offset>
+							<AbsDimension y="13"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="AutologinAccountButton3" inherits="AutologinAccountButtonTemplate" id="3">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="AutologinAccountButton2" relativePoint="BOTTOM">
+						<Offset>
+							<AbsDimension y="13"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="AutologinAccountButton4" inherits="AutologinAccountButtonTemplate" id="4">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="AutologinAccountButton3" relativePoint="BOTTOM">
+						<Offset>
+							<AbsDimension y="13"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="AutologinAccountButton5" inherits="AutologinAccountButtonTemplate" id="5">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="AutologinAccountButton4" relativePoint="BOTTOM">
+						<Offset>
+							<AbsDimension y="13"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="AutologinAccountButton6" inherits="AutologinAccountButtonTemplate" id="6">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="AutologinAccountButton5" relativePoint="BOTTOM">
+						<Offset>
+							<AbsDimension y="13"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="AutologinRemoveAccountButton" inherits="GlueButtonSmallTemplate" text="Remove account">
+				<Anchors>
+					<Anchor point="BOTTOM" relativeTo="AutologinAccountsFrame" relativePoint="BOTTOM">
+						<Offset>
+							<AbsDimension x="0" y="5"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						AutologinRemoveAccountButton_OnClick()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="AutologinNextPage">
+				<Size>
+					<AbsDimension x="32" y="32"/>
+				</Size>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT"  relativeTo="AutologinAccountsFrame" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="-5" y="10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						LoginManager:NextPage()
+					</OnClick>
+				</Scripts>
+				<NormalTexture file="Interface\Glues\Common\Glue-RightArrow-Button-Up"/>
+				<PushedTexture file="Interface\Glues\Common\Glue-RightArrow-Button-Down"/>
+				<HighlightTexture file="Interface\Glues\Common\Glue-RightArrow-Button-Highlight" alphaMode="ADD"/>
+			</Button>
+			<Button name="AutologinPrevPage">
+				<Size>
+					<AbsDimension x="32" y="32"/>
+				</Size>
+				<Anchors>
+					<Anchor point="BOTTOMLEFT"  relativeTo="AutologinAccountsFrame" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="10" y="10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						LoginManager:PrevPage()
+					</OnClick>
+				</Scripts>
+				<NormalTexture file="Interface\Glues\Common\Glue-LeftArrow-Button-Up"/>
+				<PushedTexture file="Interface\Glues\Common\Glue-LeftArrow-Button-Down"/>
+				<HighlightTexture file="Interface\Glues\Common\Glue-LeftArrow-Button-Highlight" alphaMode="ADD"/>
+			</Button>
+		</Frames>
+		<Backdrop bgFile="Interface\Glues\Common\Glue-Tooltip-Background" edgeFile="Interface\Glues\Common\Glue-Tooltip-Border" tile="true">
+			<BackgroundInsets>
+				<AbsInset left="10" right="5" top="4" bottom="9"/>
+			</BackgroundInsets>
+			<TileSize>
+				<AbsValue val="16"/>
+			</TileSize>
+			<EdgeSize>
+				<AbsValue val="16"/>
+			</EdgeSize>
+		</Backdrop>
+	</Frame>
+</Ui>

@@ -1,0 +1,23 @@
+GlueStrings.lua
+GlueFonts.xml
+GlueLocalization.xml
+GlueBasicControls.xml
+GlueParent.xml
+GlueButtons.xml
+GlueTemplates.xml
+GlueDialog.xml
+GlueDropDownMenu.xml
+GlueSplash.xml
+RealmList.xml
+AddonList.xml
+AccountLogin.xml
+CharacterSelect.xml
+CharacterCreate.xml
+PatchDownload.xml
+MovieFrame.xml
+GlueTooltip.xml
+RealmWizard.xml
+CreditsFrame.xml
+
+# Autologin
+AutoLogin.xml
