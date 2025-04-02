@@ -1,6 +1,6 @@
 # Turtle AutoLogin
 
-≥ ## This repository is now archived and no oonger being maintained. You can check out some of the other forks.
+## This repository is now archived and no oonger being maintained. You can check out some of the other forks.
 
 Patch for Turtle WoW client that adds auto login and account info saving features.
 
