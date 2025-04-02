@@ -1,5 +1,7 @@
 # Turtle AutoLogin
 
+≥ ## This repository is now archived and no oonger being maintained. You can check out some of the other forks.
+
 Patch for Turtle WoW client that adds auto login and account info saving features.
 
 > This patch saves your login info into `\WTF\Config.wtf` so keep in mind that it will **contain your passwords** and thus you should think before sharing this file with someone else.
