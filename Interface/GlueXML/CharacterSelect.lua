@@ -1,3 +1,7 @@
+local function GetAccountName()
+  return Autologin_CurrentAccount
+end
+
 function Autologin_OnCharactersLoad()
   Autologin_Load();
   local selected = Autologin_Table[Autologin_SelectedIdx];
@@ -31,6 +35,63 @@ function Autologin_EnterWorld()
   end
 
   EnterWorld();
+end
+
+-- Function to update character number
+function Autologin_UpdateCharacterNumber()
+    local currentUser = GetAccountName()
+    local characterNumber = CharacterSelect.selectedIndex
+
+    local found = false
+    for i = 1, table.getn(Autologin_Table) do
+        if Autologin_Table[i].name == currentUser then
+            Autologin_Table[i].character = tostring(characterNumber)
+            found = true
+            break
+        end
+    end
+
+    if not found then
+        return false
+    end
+
+    Autologin_Save()  -- Use Autologin_Save() to handle serialization
+    return true
+end
+
+-- Function to remove character number
+function Autologin_RemoveCharacterNumber()
+    local currentUser = GetAccountName()  -- Use GetAccountName() instead of Autologin_CurrentAccount
+
+    local found = false
+    for i = 1, table.getn(Autologin_Table) do
+        if Autologin_Table[i].name == currentUser then
+            Autologin_Table[i].character = ""
+            found = true
+            break
+        end
+    end
+
+    if not found then
+        return false
+    end
+
+    Autologin_Save()  -- Use Autologin_Save() to handle serialization
+    return true
+end
+
+-- Autologin_Save function (add this if not already present)
+function Autologin_Save()
+    local savedVar = ""
+    for i = 1, table.getn(Autologin_Table) do
+        local r = Autologin_Table[i]
+        savedVar = savedVar .. r.name .. " " .. r.password
+        if r.character and r.character ~= "" then
+            savedVar = savedVar .. " " .. r.character
+        end
+        savedVar = savedVar .. ";"
+    end
+    SetSavedAccountName(savedVar)
 end
 
 -- Vanilla code

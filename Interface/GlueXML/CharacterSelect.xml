@@ -154,8 +154,10 @@
 							<OnClick>
 								if (this:GetChecked()) then
 									PlaySound("igMainMenuOptionCheckBoxOff");
+									Autologin_RemoveCharacterNumber()
 								else
 									PlaySound("igMainMenuOptionCheckBoxOn");
+									Autologin_UpdateCharacterNumber()
 								end
 							</OnClick>
 						</Scripts>
